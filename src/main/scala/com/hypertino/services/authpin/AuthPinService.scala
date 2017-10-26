@@ -13,11 +13,9 @@ import java.util.Base64
 
 import com.hypertino.authpin.api._
 import com.hypertino.authpin.apiref.hyperstorage._
-import com.hypertino.binders.value.{Null, Obj}
 import com.hypertino.hyperbus.Hyperbus
 import com.hypertino.hyperbus.model.{BadRequest, Created, DynamicBody, ErrorBody, Header, Headers, NoContent, NotFound, ResponseBase, Unauthorized}
 import com.hypertino.hyperbus.subscribe.Subscribable
-import com.hypertino.hyperbus.util.IdGenerator
 import com.hypertino.service.control.api.Service
 import com.typesafe.scalalogging.StrictLogging
 import monix.eval.Task
