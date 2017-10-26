@@ -1,0 +1,9 @@
+[submodule "api/auth-pin-service-api"]
+	path = api/auth-pin-service-api
+	url = git@github.com:hypertino/auth-pin-service-api.git
+[submodule "travis"]
+	path = travis
+	url = git@github.com:hypertino/scala-travis-script.git
+[submodule "api/hyperstorage-service-api"]
+	path = api/hyperstorage-service-api
+	url = git@github.com:hypertino/hyperstorage-service-api.git
