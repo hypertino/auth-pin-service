@@ -100,7 +100,7 @@ class AuthPinService(implicit val injector: Injector) extends Service with Injec
 
   def onPinsPost(implicit post: PinsPost): Task[ResponseBase] = {
     if (post.body.pinLength.getOrElse(DEFAULT_PIN_LENGTH) > 2) {
-      val pinId = IdGenerator.create()
+      val pinId = post.body.pinId
       val pin = pinGenerator.nextPin(post.body.pinLength.getOrElse(DEFAULT_PIN_LENGTH), post.body.onlyDigits.getOrElse(true))
       val ttlInSeconds = post.body.timeToLiveSeconds.getOrElse(DEFAULT_PIN_LIFETIME)
       val validUntil = ttlInSeconds.toLong * 1000l + System.currentTimeMillis()
@@ -114,14 +114,14 @@ class AuthPinService(implicit val injector: Injector) extends Service with Injec
           HyperStorageHeader.HYPER_STORAGE_TTL → ttlInSeconds
         )))
         .map { _ ⇒
-          Created(NewPin(pinId))
+          Created(NewPin(pin,pinId))
         }
     } else {
       Task.raiseError(BadRequest(ErrorBody("pin-length-is-too-small", Some("Pin can't be shorter than 3 symbols"))))
     }
   }
 
-  private def getPinStoragePath(pinId: String) = s"auth-pin-service/pins/$pinId"
+  private def getPinStoragePath(pinId: String) = s"auth-pin-service/pins/${URLEncoder.encode(pinId,"UTF-8")}"
 
   override def stopService(controlBreak: Boolean, timeout: FiniteDuration): Future[Unit] = Future {
     handlers.foreach(_.cancel())

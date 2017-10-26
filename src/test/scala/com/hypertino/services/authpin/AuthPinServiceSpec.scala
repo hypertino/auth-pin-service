@@ -18,6 +18,7 @@ import com.hypertino.hyperbus.model.{Created, DynamicBody, ErrorBody, Headers, M
 import com.hypertino.hyperbus.subscribe.Subscribable
 import com.hypertino.hyperbus.transport.api.ServiceRegistrator
 import com.hypertino.hyperbus.transport.registrators.DummyRegistrator
+import com.hypertino.hyperbus.util.IdGenerator
 import com.hypertino.service.config.ConfigLoader
 import com.typesafe.config.Config
 import monix.eval.Task
@@ -90,23 +91,29 @@ class AuthPinServiceSpec extends FlatSpec with Module with BeforeAndAfterAll wit
   def selectPin(pinId: String): Value = hyperStorageContent(s"auth-pin-service/pins/$pinId")
 
   "AuthPinService" should "create pin" in {
+    val pinId = IdGenerator.create()
     val c = hyperbus
-      .ask(PinsPost(CreatePin(Some(60),Some(3),onlyDigits = Some(false),Obj.from("user_id" → "100500"), Null)))
+      .ask(PinsPost(CreatePin(pinId,Some(60),Some(3),onlyDigits = Some(false),Obj.from("user_id" → "100500"), Null)))
       .runAsync
       .futureValue
 
     val v = selectPin(c.body.pinId)
     v.dynamic.pin.toString.length shouldBe 3
+    c.body.pin shouldBe v.dynamic.pin.toString
+    c.body.pinId shouldBe pinId
     v.dynamic.identity_keys.dynamic.user_id.toString shouldBe "100500"
   }
 
   it should "authorize and consume if pin matches" in {
+    val pinId = IdGenerator.create()
     val c = hyperbus
-      .ask(PinsPost(CreatePin(Some(60),Some(3),onlyDigits = None,Obj.from("user_id" → "100500"), Null)))
+      .ask(PinsPost(CreatePin(pinId, Some(60),Some(3),onlyDigits = None,Obj.from("user_id" → "100500"), Null)))
       .runAsync
       .futureValue
 
     val v = selectPin(c.body.pinId)
+    c.body.pin shouldBe v.dynamic.pin.toString
+    c.body.pinId shouldBe pinId
     v.dynamic.pin.toString.length shouldBe 3
     v.dynamic.identity_keys.dynamic.user_id.toString shouldBe "100500"
 
@@ -145,14 +152,17 @@ class AuthPinServiceSpec extends FlatSpec with Module with BeforeAndAfterAll wit
   }
 
   it should "invalidate pin after 3 attempts" in {
+    val pinId = IdGenerator.create()
     val c = hyperbus
-      .ask(PinsPost(CreatePin(Some(60),Some(3),onlyDigits = Some(true),Obj.from("user_id" → "100500"), Null)))
+      .ask(PinsPost(CreatePin(pinId, Some(60),Some(3),onlyDigits = Some(true),Obj.from("user_id" → "100500"), Null)))
       .runAsync
       .futureValue
 
     val v = selectPin(c.body.pinId)
     v.dynamic.pin.toString.length shouldBe 3
     v.dynamic.identity_keys.dynamic.user_id.toString shouldBe "100500"
+    c.body.pin shouldBe v.dynamic.pin.toString
+    c.body.pinId shouldBe pinId
 
     val credentials = c.body.pinId + ":" + v.dynamic.pin.toString + "1"
     val authHeader = new String(Base64.getEncoder.encode(credentials.getBytes("UTF-8")), "UTF-8")
@@ -188,14 +198,17 @@ class AuthPinServiceSpec extends FlatSpec with Module with BeforeAndAfterAll wit
   }
 
   it should "expire after ttl" in {
+    val pinId = IdGenerator.create()
     val c = hyperbus
-      .ask(PinsPost(CreatePin(Some(1),Some(3),onlyDigits = Some(true),Obj.from("user_id" → "100500"), Null)))
+      .ask(PinsPost(CreatePin(pinId, Some(1),Some(3),onlyDigits = Some(true),Obj.from("user_id" → "100500"), Null)))
       .runAsync
       .futureValue
 
     val v = selectPin(c.body.pinId)
     v.dynamic.pin.toString.length shouldBe 3
     v.dynamic.identity_keys.dynamic.user_id.toString shouldBe "100500"
+    c.body.pin shouldBe v.dynamic.pin.toString
+    c.body.pinId shouldBe pinId
 
     Thread.sleep(3000)
 
