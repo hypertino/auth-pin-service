@@ -26,7 +26,7 @@ lazy val `auth-pin-service` = project in file(".") enablePlugins Raml2Hyperbus s
       ),
       ramlSource(
         path = "api/auth-pin-service-api/auth-pin.raml",
-        packageName = "com.hypertino.authpin.apiref.authpin",
+        packageName = "com.hypertino.authpin.api",
         isResource = false
       )
     )

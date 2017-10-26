@@ -10,7 +10,7 @@ package com.hypertino.services.authpin
 
 import java.util.Base64
 
-import com.hypertino.authpin.apiref.authpin.{CreatePin, PinsPost, Validation, ValidationsPost}
+import com.hypertino.authpin.api.{CreatePin, PinsPost, Validation, ValidationsPost}
 import com.hypertino.authpin.apiref.hyperstorage._
 import com.hypertino.binders.value.{Null, Obj, Value}
 import com.hypertino.hyperbus.Hyperbus

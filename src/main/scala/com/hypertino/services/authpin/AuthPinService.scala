@@ -11,7 +11,7 @@ package com.hypertino.services.authpin
 import java.net.URLEncoder
 import java.util.Base64
 
-import com.hypertino.authpin.apiref.authpin._
+import com.hypertino.authpin.api._
 import com.hypertino.authpin.apiref.hyperstorage._
 import com.hypertino.binders.value.{Null, Obj}
 import com.hypertino.hyperbus.Hyperbus
