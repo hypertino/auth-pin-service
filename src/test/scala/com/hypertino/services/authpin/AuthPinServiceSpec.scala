@@ -91,7 +91,7 @@ class AuthPinServiceSpec extends FlatSpec with Module with BeforeAndAfterAll wit
 
   "AuthPinService" should "create pin" in {
     val c = hyperbus
-      .ask(PinsPost(CreatePin(Some(60),3,onlyDigits = false,Obj.from("user_id" → "100500"), Null)))
+      .ask(PinsPost(CreatePin(Some(60),Some(3),onlyDigits = Some(false),Obj.from("user_id" → "100500"), Null)))
       .runAsync
       .futureValue
 
@@ -102,7 +102,7 @@ class AuthPinServiceSpec extends FlatSpec with Module with BeforeAndAfterAll wit
 
   it should "authorize and consume if pin matches" in {
     val c = hyperbus
-      .ask(PinsPost(CreatePin(Some(60),3,onlyDigits = true,Obj.from("user_id" → "100500"), Null)))
+      .ask(PinsPost(CreatePin(Some(60),Some(3),onlyDigits = None,Obj.from("user_id" → "100500"), Null)))
       .runAsync
       .futureValue
 
@@ -146,7 +146,7 @@ class AuthPinServiceSpec extends FlatSpec with Module with BeforeAndAfterAll wit
 
   it should "invalidate pin after 3 attempts" in {
     val c = hyperbus
-      .ask(PinsPost(CreatePin(Some(60),3,onlyDigits = true,Obj.from("user_id" → "100500"), Null)))
+      .ask(PinsPost(CreatePin(Some(60),Some(3),onlyDigits = Some(true),Obj.from("user_id" → "100500"), Null)))
       .runAsync
       .futureValue
 
@@ -189,7 +189,7 @@ class AuthPinServiceSpec extends FlatSpec with Module with BeforeAndAfterAll wit
 
   it should "expire after ttl" in {
     val c = hyperbus
-      .ask(PinsPost(CreatePin(Some(1),3,onlyDigits = true,Obj.from("user_id" → "100500"), Null)))
+      .ask(PinsPost(CreatePin(Some(1),Some(3),onlyDigits = Some(true),Obj.from("user_id" → "100500"), Null)))
       .runAsync
       .futureValue
 

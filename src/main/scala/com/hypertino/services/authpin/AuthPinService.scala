@@ -31,6 +31,7 @@ class AuthPinService(implicit val injector: Injector) extends Service with Injec
   private implicit val scheduler = inject[Scheduler]
   private val hyperbus = inject[Hyperbus]
   private final val DEFAULT_PIN_LIFETIME = 24 * 60 * 60
+  private final val DEFAULT_PIN_LENGTH = 6
   private final val MAX_ATTEMPTS = 3
   private final val pinGenerator = new PinGenerator()
   logger.info(s"${getClass.getName} is STARTED")
@@ -98,9 +99,9 @@ class AuthPinService(implicit val injector: Injector) extends Service with Injec
   }
 
   def onPinsPost(implicit post: PinsPost): Task[ResponseBase] = {
-    if (post.body.pinLength > 2) {
+    if (post.body.pinLength.getOrElse(DEFAULT_PIN_LENGTH) > 2) {
       val pinId = IdGenerator.create()
-      val pin = pinGenerator.nextPin(post.body.pinLength, post.body.onlyDigits)
+      val pin = pinGenerator.nextPin(post.body.pinLength.getOrElse(DEFAULT_PIN_LENGTH), post.body.onlyDigits.getOrElse(true))
       val ttlInSeconds = post.body.timeToLiveSeconds.getOrElse(DEFAULT_PIN_LIFETIME)
       val validUntil = ttlInSeconds.toLong * 1000l + System.currentTimeMillis()
 
