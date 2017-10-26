@@ -21,7 +21,7 @@ lazy val `auth-pin-service` = project in file(".") enablePlugins Raml2Hyperbus s
     ramlHyperbusSources := Seq(
       ramlSource(
         path = "api/hyperstorage-service-api/hyperstorage.raml",
-        packageName = "com.hypertino.authtoken.apiref.hyperstorage",
+        packageName = "com.hypertino.authpin.apiref.hyperstorage",
         isResource = false
       ),
       ramlSource(

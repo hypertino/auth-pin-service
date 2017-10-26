@@ -11,7 +11,7 @@ package com.hypertino.services.authpin
 import java.util.Base64
 
 import com.hypertino.authpin.apiref.authpin.{CreatePin, PinsPost, Validation, ValidationsPost}
-import com.hypertino.authtoken.apiref.hyperstorage._
+import com.hypertino.authpin.apiref.hyperstorage._
 import com.hypertino.binders.value.{Null, Obj, Value}
 import com.hypertino.hyperbus.Hyperbus
 import com.hypertino.hyperbus.model.{Created, DynamicBody, ErrorBody, Headers, MessagingContext, NotFound, Ok, ResponseBase, Unauthorized}
@@ -89,7 +89,7 @@ class AuthPinServiceSpec extends FlatSpec with Module with BeforeAndAfterAll wit
 
   def selectPin(pinId: String): Value = hyperStorageContent(s"auth-pin-service/pins/$pinId")
 
-  "AuthTokenService" should "create pin" in {
+  "AuthPinService" should "create pin" in {
     val c = hyperbus
       .ask(PinsPost(CreatePin(Some(60),3,onlyDigits = false,Obj.from("user_id" → "100500"), Null)))
       .runAsync
