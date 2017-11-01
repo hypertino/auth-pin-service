@@ -8,6 +8,7 @@
 
 package com.hypertino.services.authpin
 
+import java.net.URLEncoder
 import java.util.Base64
 
 import com.hypertino.authpin.api.{CreatePin, PinsPost, Validation, ValidationsPost}
@@ -88,7 +89,7 @@ class AuthPinServiceSpec extends FlatSpec with Module with BeforeAndAfterAll wit
     hyperbus.shutdown(10.seconds).runAsync.futureValue
   }
 
-  def selectPin(pinId: String): Value = hyperStorageContent(s"auth-pin-service/pins/$pinId")
+  def selectPin(pinId: String): Value = hyperStorageContent(s"auth-pin-service/pins/${URLEncoder.encode(pinId,"UTF-8")}")
 
   "AuthPinService" should "create pin" in {
     val pinId = IdGenerator.create()
