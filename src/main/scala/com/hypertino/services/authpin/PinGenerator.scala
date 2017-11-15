@@ -14,7 +14,6 @@ import com.hypertino.hyperbus.util.IdGeneratorBase
 
 class PinGenerator() extends IdGeneratorBase{
   private val random = new SecureRandom()
-  private final val base64t = "-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz" // sorted by char code
 
   def nextPin(pinSize: Int, onlyDigits: Boolean): String = {
     val sb = new StringBuilder(pinSize)

@@ -17,6 +17,7 @@ import com.hypertino.hyperbus.Hyperbus
 import com.hypertino.hyperbus.model.{BadRequest, Created, DynamicBody, ErrorBody, Header, Headers, NoContent, NotFound, ResponseBase, Unauthorized}
 import com.hypertino.hyperbus.subscribe.Subscribable
 import com.hypertino.service.control.api.Service
+import com.hypertino.services.authpin.utils.ErrorCode
 import com.typesafe.scalalogging.StrictLogging
 import monix.eval.Task
 import monix.execution.Scheduler
@@ -40,14 +41,14 @@ class AuthPinService(implicit val injector: Injector) extends Service with Injec
     val authorization = post.body.authorization
     val spaceIndex = authorization.indexOf(" ")
     if (spaceIndex < 0 || authorization.substring(0, spaceIndex).compareToIgnoreCase("pin") != 0) {
-      Task.eval(BadRequest(ErrorBody("format-error")))
+      Task.eval(BadRequest(ErrorBody(ErrorCode.FORMAT_ERROR)))
     }
     else {
       val base64 = authorization.substring(spaceIndex + 1)
       val pinIdAndValue = new String(Base64.getDecoder.decode(base64), "UTF-8")
       val semicolonIndex = pinIdAndValue.indexOf(":")
       if (semicolonIndex < 0) {
-        Task.eval(BadRequest(ErrorBody("format-error-pin-id")))
+        Task.eval(BadRequest(ErrorBody(ErrorCode.FORMAT_ERROR_PIN_ID)))
       }
       else {
         val pinId = pinIdAndValue.substring(0, semicolonIndex)
@@ -63,7 +64,7 @@ class AuthPinService(implicit val injector: Injector) extends Service with Injec
               || pinObject.attempts >= MAX_ATTEMPTS
               || pinObject.validUntil < System.currentTimeMillis
             ) {
-              Task.raiseError(Unauthorized(ErrorBody("pin-is-consumed-or-expired")))
+              Task.raiseError(Unauthorized(ErrorBody(ErrorCode.PIN_IS_CONSUMED_OR_EXPIRED)))
             }
             else
             if (pinObject.pin != pinValue) {
@@ -72,7 +73,7 @@ class AuthPinService(implicit val injector: Injector) extends Service with Injec
                   DynamicBody(Obj.from("attempts" → 1)),
                   headers=Headers(Header.CONTENT_TYPE → HyperStoragePatchType.HYPERSTORAGE_CONTENT_INCREMENT))
                 ).flatMap { _ ⇒
-                Task.raiseError(Unauthorized(ErrorBody("pin-is-not-valid")))
+                Task.raiseError(Unauthorized(ErrorBody(ErrorCode.PIN_IS_NOT_VALID)))
               }
             }
             else {
@@ -90,7 +91,7 @@ class AuthPinService(implicit val injector: Injector) extends Service with Injec
           }
           .onErrorRecover {
             case _: NotFound[_] ⇒
-              Unauthorized(ErrorBody("pin-not-found"))
+              Unauthorized(ErrorBody(ErrorCode.PIN_NOT_FOUND))
           }
       }
     }
@@ -115,7 +116,7 @@ class AuthPinService(implicit val injector: Injector) extends Service with Injec
           Created(NewPin(pin,pinId))
         }
     } else {
-      Task.raiseError(BadRequest(ErrorBody("pin-length-is-too-small", Some("Pin can't be shorter than 3 symbols"))))
+      Task.raiseError(BadRequest(ErrorBody(ErrorCode.PIN_LENGTH_IS_TOO_SMALL, Some("Pin can't be shorter than 3 symbols"))))
     }
   }
 

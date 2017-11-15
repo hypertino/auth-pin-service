@@ -74,7 +74,7 @@ class AuthPinServiceSpec extends FlatSpec with Module with BeforeAndAfterAll wit
   def onContentGet(implicit request: ContentGet): Task[ResponseBase] = {
     hyperStorageContent.get(request.path) match {
       case Some(v) ⇒ Task.eval(Ok(DynamicBody(v),Headers(HyperStorageHeader.ETAG → v.hashCode().toString)))
-      case None ⇒ Task.eval(NotFound(ErrorBody("not-found", Some(request.path))))
+      case None ⇒ Task.eval(NotFound(ErrorBody("not_found", Some(request.path))))
     }
   }
 
@@ -137,7 +137,7 @@ class AuthPinServiceSpec extends FlatSpec with Module with BeforeAndAfterAll wit
 
     r2 shouldBe a[Unauthorized[_]]
     val b = r2.asInstanceOf[Unauthorized[ErrorBody]].body
-    b.code shouldBe "pin-is-consumed-or-expired"
+    b.code shouldBe "pin_is_consumed_or_expired"
   }
 
   it should "unathorize if user pin doesn't exists" in {
@@ -149,7 +149,7 @@ class AuthPinServiceSpec extends FlatSpec with Module with BeforeAndAfterAll wit
 
     r shouldBe a[Unauthorized[_]]
     val b = r.asInstanceOf[Unauthorized[ErrorBody]].body
-    b.code shouldBe "pin-not-found"
+    b.code shouldBe "pin_not_found"
   }
 
   it should "invalidate pin after 3 attempts" in {
@@ -179,10 +179,10 @@ class AuthPinServiceSpec extends FlatSpec with Module with BeforeAndAfterAll wit
       val b = r.asInstanceOf[Unauthorized[ErrorBody]].body
       b.code
     }
-    attempt() shouldBe "pin-is-not-valid"
-    attempt() shouldBe "pin-is-not-valid"
-    attempt() shouldBe "pin-is-not-valid"
-    attempt() shouldBe "pin-is-consumed-or-expired"
+    attempt() shouldBe "pin_is_not_valid"
+    attempt() shouldBe "pin_is_not_valid"
+    attempt() shouldBe "pin_is_not_valid"
+    attempt() shouldBe "pin_is_consumed_or_expired"
 
     val credentials2 = c.body.pinId + ":" + v.dynamic.pin.toString
     val authHeader2 = new String(Base64.getEncoder.encode(credentials2.getBytes("UTF-8")), "UTF-8")
@@ -195,7 +195,7 @@ class AuthPinServiceSpec extends FlatSpec with Module with BeforeAndAfterAll wit
 
     r shouldBe a[Unauthorized[_]]
     val b = r.asInstanceOf[Unauthorized[ErrorBody]].body
-    b.code shouldBe "pin-is-consumed-or-expired"
+    b.code shouldBe "pin_is_consumed_or_expired"
   }
 
   it should "expire after ttl" in {
@@ -224,6 +224,6 @@ class AuthPinServiceSpec extends FlatSpec with Module with BeforeAndAfterAll wit
 
     r shouldBe a[Unauthorized[_]]
     val b = r.asInstanceOf[Unauthorized[ErrorBody]].body
-    b.code shouldBe "pin-is-consumed-or-expired"
+    b.code shouldBe "pin_is_consumed_or_expired"
   }
 }
